@@ -10,9 +10,14 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import com.bluesky.android_step.databinding.ActivityMainBinding
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private var isAnimating = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -21,38 +26,52 @@ class MainActivity : AppCompatActivity() {
         binding.layout02.root.visibility = View.VISIBLE
 
         binding.layout02.button2.setOnClickListener {
+            if (!isAnimating) {
+                isAnimating = true
 //            animateVisibility(binding.layout02.root, View.INVISIBLE)
 //            animateVisibility(binding.layout01.root, View.VISIBLE)
-            animateTranslation(
-                binding.layout02.root,
-                0f,
-                -binding.layout02.root.width.toFloat(),
-                View.INVISIBLE
-            )
-            animateTranslation(
-                binding.layout01.root,
-                binding.layout01.root.width.toFloat(),
-                0f,
-                View.VISIBLE
-            )
-            binding.layout01.textView01.text = "hello world, I'm back"
+                animateTranslation(
+                    binding.layout02.root,
+                    0f,
+                    -binding.layout02.root.width.toFloat(),
+                    View.INVISIBLE
+                )
+                animateTranslation(
+                    binding.layout01.root,
+                    binding.layout01.root.width.toFloat(),
+                    0f,
+                    View.VISIBLE
+                )
+                binding.layout01.textView01.text = "hello world, I'm back"
+                MainScope().launch {
+                    delay(500)
+                    isAnimating = false
+                }
+            }
         }
         binding.layout01.button1.setOnClickListener {
 //            animateVisibility(binding.layout02.root, View.INVISIBLE)
 //            animateVisibility(binding.layout01.root, View.VISIBLE)
-            animateTranslation(
-                binding.layout01.root,
-                0f,
-                -binding.layout01.root.width.toFloat(),
-                View.INVISIBLE
-            )
-            animateTranslation(
-                binding.layout02.root,
-                binding.layout02.root.width.toFloat(),
-                0f,
-                View.VISIBLE
-            )
-            binding.layout02.textView2.text = "Change Value Haha"
+            if (!isAnimating) {
+                isAnimating = true
+                animateTranslation(
+                    binding.layout01.root,
+                    0f,
+                    binding.layout01.root.width.toFloat(),
+                    View.INVISIBLE
+                )
+                animateTranslation(
+                    binding.layout02.root,
+                    -binding.layout02.root.width.toFloat(),
+                    0f,
+                    View.VISIBLE
+                )
+                binding.layout02.textView2.text = "Change Value Haha"
+                MainScope().launch {
+                    delay(500)
+                    isAnimating = false
+                }
+            }
         }
     }
 
