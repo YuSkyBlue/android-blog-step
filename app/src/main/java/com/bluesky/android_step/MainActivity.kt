@@ -201,24 +201,33 @@ class MainActivity : AppCompatActivity() {
                 .also {
                     it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
                 }
-            /*-------------- Change Start -----------*/
+
             val recorder = Recorder.Builder()
-                .setQualitySelector(QualitySelector.from(Quality.HIGHEST))
+
+                .setQualitySelector(QualitySelector.from(Quality.HIGHEST,
+                    /*-------------- Change Start -----------*/
+                    FallbackStrategy.higherQualityOrLowerThan(Quality.SD))
+                    /*-------------- Change End -----------*/
+
+                )
+
                 .build()
             videoCapture = VideoCapture.withOutput(recorder)
-            /*-------------- Change End -----------*/
-            
             /*-------------- Change Start -----------*/
-            /*imageCapture = ImageCapture.Builder()
+            imageCapture = ImageCapture.Builder()
                 .build()
-            val imageAnalyzer = ImageAnalysis.Builder()
-                .build()
-                .also {
-                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                        Log.d(TAG, "Average luminosity: $luma")
-                    })
-                }*/
             /*-------------- Change End -----------*/
+
+
+            /*
+                 val imageAnalyzer = ImageAnalysis.Builder()
+                     .build()
+                     .also {
+                         it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+                             Log.d(TAG, "Average luminosity: $luma")
+                         })
+                     }*/
+
 
             // Select back camera as a default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -230,7 +239,7 @@ class MainActivity : AppCompatActivity() {
                 // Bind use cases to camera
                 /*-------------- Change Start -----------*/
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, videoCapture)
+                    this, cameraSelector, preview, imageCapture,videoCapture)
                 /*-------------- Change End -----------*/
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
