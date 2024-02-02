@@ -20,6 +20,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.camera.lifecycle.ProcessCameraProvider
 import com.bluesky.android_step.databinding.ActivityMainBinding
+import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 
 typealias LumaListener = (luma: Double) -> Unit
@@ -55,7 +56,27 @@ class MainActivity : AppCompatActivity() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
+    private class LuminosityAnalyzer(private val listener: LumaListener) : ImageAnalysis.Analyzer {
 
+        private fun ByteBuffer.toByteArray(): ByteArray {
+            rewind()    // Rewind the buffer to zero
+            val data = ByteArray(remaining())
+            get(data)   // Copy the buffer into a byte array
+            return data // Return the byte array
+        }
+
+        override fun analyze(image: ImageProxy) {
+
+            val buffer = image.planes[0].buffer
+            val data = buffer.toByteArray()
+            val pixels = data.map { it.toInt() and 0xFF }
+            val luma = pixels.average()
+
+            listener(luma)
+
+            image.close()
+        }
+    }
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case
         val imageCapture = imageCapture ?: return
@@ -98,7 +119,9 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun captureVideo() {}
+    private fun captureVideo() {
+        
+    }
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -113,10 +136,19 @@ class MainActivity : AppCompatActivity() {
                 .also {
                     it.setSurfaceProvider(viewBinding.viewFinder.surfaceProvider)
                 }
-            /*-------------- Change Start -----------*/
+
             imageCapture = ImageCapture.Builder()
                 .build()
+            /*-------------- Change Start -----------*/
+            val imageAnalyzer = ImageAnalysis.Builder()
+                .build()
+                .also {
+                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+                        Log.d(TAG, "Average luminosity: $luma")
+                    })
+                }
             /*-------------- Change End -----------*/
+
             // Select back camera as a default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
@@ -127,7 +159,7 @@ class MainActivity : AppCompatActivity() {
                 // Bind use cases to camera
                 /*-------------- Change Start -----------*/
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageCapture)
+                    this, cameraSelector, preview, imageCapture, imageAnalyzer)
                 /*-------------- Change End -----------*/
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
