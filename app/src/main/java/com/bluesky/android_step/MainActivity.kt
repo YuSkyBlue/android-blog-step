@@ -16,6 +16,7 @@ import   java.io.DataOutputStream
 import   java.net.*
 import   kotlin.properties.Delegates
 
+// REFERNCE  https://elecs.tistory.com/411
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding // Declare a binding variable
 
