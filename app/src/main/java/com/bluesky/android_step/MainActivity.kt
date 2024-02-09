@@ -25,11 +25,9 @@ class MainActivity : AppCompatActivity() {
         button1= findViewById<Button>(R.id.button1)
         button2 = findViewById<Button>(R.id.button2)
         textView = findViewById<TextView>(R.id.textview)
-        // x :  600 , y 1360
 
 
-//
-//        // Optionally, update the text view with the coordinates
+        // Set click listeners for Button 1 and Button 2
         button1.setOnClickListener {
             textView.text = "Button 1 clicked $count"
         }
@@ -39,10 +37,11 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
+        // Schedule a repeated task using Handler to find closest button every 3 seconds
         handler.postDelayed(object : Runnable {
             override fun run() {
                 count++
+                // Generate random coordinates
                 val randomX = Random.nextInt(0, 1200) // Set your desired range
                 val randomY = Random.nextInt(0, 1920) // Set your desired range
                 findClosestButton(randomX,randomY)
@@ -51,25 +50,34 @@ class MainActivity : AppCompatActivity() {
         }, 3000)
 
     }
+    // Function to find the closest button based on random coordinates
+
     private fun findClosestButton(randomX: Int, randomY: Int) {
         Log.d("MainActivity", "randonX :  $randomX, randomY : $randomY")
+        // Get the screen coordinates of Button 1
         val location1 = IntArray(2)
         button1.getLocationOnScreen(location1)
+        // Calculate the distance between random coordinates and Button 1
         val distanceToButton1 = calculateDistance(randomX, randomY, location1[0], location1[1])
 
+        // Get the screen coordinates of Button 2
         val location2 = IntArray(2)
         button2.getLocationOnScreen(location2)
+        // Calculate the distance between random coordinates and Button 2
         val distanceToButton2 = calculateDistance(randomX, randomY, location2[0], location2[1])
 
+        // Trigger a touch event on the closest button
         if (distanceToButton1 < distanceToButton2) {
             simulateTouchEvent(location1[0], location1[1])
         } else {
             simulateTouchEvent(location2[0], location2[1])
         }
     }
+    // Function to calculate the distance between two points in 2D space
     private fun calculateDistance(x1: Int, y1: Int, x2: Int, y2: Int): Float {
         return hypot((x2 - x1).toDouble(), (y2 - y1).toDouble()).toFloat()
     }
+    // Function to simulate a touch event at the specified coordinates
     private fun simulateTouchEvent(x: Int, y: Int) {
         val motionEvent = MotionEvent.obtain(
             0,
