@@ -1,12 +1,8 @@
 package com.bluesky.android_step
 
 import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-class UserRepository(private val userDataSource: UserDataSource)
+@HiltAndroidApp
+class MyApplication : Application()
 
-class UserDataSource
-
-class MyApplication : Application() {
-    val userDataSource by lazy { UserDataSource() }
-    val userRepository by lazy { UserRepository(userDataSource) }
-}
