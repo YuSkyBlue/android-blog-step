@@ -11,5 +11,6 @@ class MainActivity : AppCompatActivity() {
 
         val application = application as MyApplication
         userRepository  = application.userRepository
+        userRepository.getUserData()
     }
 }
